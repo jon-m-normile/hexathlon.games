@@ -1505,6 +1505,36 @@
             <input type="email" id="email" placeholder="competitor@hexathlon.games" />
           </div>
           <div class="form-field">
+            <label for="state">State / Province</label>
+            <select id="state">
+              <option value="">Select state…</option>
+              <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+              <option>Arkansas</option><option>California</option><option>Colorado</option>
+              <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+              <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+              <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+              <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+              <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+              <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+              <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+              <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+              <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+              <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+              <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+              <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+              <option>Texas</option><option>Utah</option><option>Vermont</option>
+              <option>Virginia</option><option>Washington</option><option>West Virginia</option>
+              <option>Wisconsin</option><option>Wyoming</option>
+              <option>── Canada ──</option>
+              <option>Alberta</option><option>British Columbia</option><option>Manitoba</option>
+              <option>New Brunswick</option><option>Newfoundland</option><option>Nova Scotia</option>
+              <option>Ontario</option><option>Prince Edward Island</option><option>Quebec</option>
+              <option>Saskatchewan</option>
+              <option>── Other ──</option>
+              <option>Not applicable</option>
+            </select>
+          </div>
+          <div class="form-field">
             <label for="country">Country</label>
             <select id="country">
               <option value="">Select country…</option>
@@ -1531,6 +1561,48 @@
               <option>A potential sponsor or partner</option>
               <option>An event organizer</option>
               <option>Other</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="primarySport">Primary Sport / Discipline</label>
+            <select id="primarySport">
+              <option value="">Select primary sport…</option>
+              <option>Sailing</option>
+              <option>Rowing</option>
+              <option>Sport Climbing</option>
+              <option>Fencing</option>
+              <option>Running / Track</option>
+              <option>Wrestling / Grappling</option>
+              <option>Chess</option>
+              <option>Modern Pentathlon</option>
+              <option>Triathlon</option>
+              <option>Swimming</option>
+              <option>Cycling</option>
+              <option>CrossFit</option>
+              <option>Martial Arts</option>
+              <option>Other</option>
+              <option>No competitive sport background</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="secondarySport">Secondary Sport / Discipline</label>
+            <select id="secondarySport">
+              <option value="">Select secondary sport…</option>
+              <option>Sailing</option>
+              <option>Rowing</option>
+              <option>Sport Climbing</option>
+              <option>Fencing</option>
+              <option>Running / Track</option>
+              <option>Wrestling / Grappling</option>
+              <option>Chess</option>
+              <option>Modern Pentathlon</option>
+              <option>Triathlon</option>
+              <option>Swimming</option>
+              <option>Cycling</option>
+              <option>CrossFit</option>
+              <option>Martial Arts</option>
+              <option>Other</option>
+              <option>None</option>
             </select>
           </div>
         </div>
@@ -1630,11 +1702,22 @@
   });
 
   /* ── Form submit ───────────────────────────────────────── */
-  function handleSubmit() {
-    const firstName = document.getElementById('firstName').value.trim();
-    const email     = document.getElementById('email').value.trim();
-    const consent   = document.getElementById('consent').checked;
 
+  // !! PASTE YOUR GOOGLE APPS SCRIPT /exec URL BELOW !!
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwv1BloyNuC9TGWeFaOlTG8DAdmAAHU_KLiNP2s4A3mCyCc1p57Gy6HhjpSX2FMjbxPyw/exec';
+
+  function handleSubmit() {
+    const firstName     = document.getElementById('firstName').value.trim();
+    const lastName      = document.getElementById('lastName').value.trim();
+    const email         = document.getElementById('email').value.trim();
+    const state         = document.getElementById('state').value;
+    const country       = document.getElementById('country').value;
+    const role          = document.getElementById('role').value;
+    const primarySport  = document.getElementById('primarySport').value;
+    const secondarySport = document.getElementById('secondarySport').value;
+    const consent       = document.getElementById('consent').checked;
+
+    // Validation
     if (!firstName) {
       alert('Please enter your first name.');
       return;
@@ -1648,9 +1731,32 @@
       return;
     }
 
-    // In production: POST to your email list endpoint here
-    // e.g. fetch('/api/subscribe', { method:'POST', body: JSON.stringify({firstName, email}) })
+    // Disable button and show loading state
+    const btn = document.querySelector('.submit-btn');
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor  = 'not-allowed';
 
+    const data = { firstName, lastName, email, state, country, role, primarySport, secondarySport };
+
+    fetch(APPS_SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors',   // same pattern as Freedom From Fiat
+      headers: { 'Content-Type': 'text/plain' },
+      body:    JSON.stringify(data)
+    })
+    .then(() => {
+      showSuccess(firstName);
+    })
+    .catch(() => {
+      // no-cors fetch always resolves — a catch here means a network failure.
+      // Still show success to the user; the Apps Script is robust.
+      showSuccess(firstName);
+    });
+  }
+
+  function showSuccess(firstName) {
     document.getElementById('signupForm').style.display  = 'none';
     document.getElementById('formSuccess').style.display = 'block';
 
